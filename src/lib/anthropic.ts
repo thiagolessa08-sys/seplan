@@ -86,7 +86,7 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
       logger.info(
         {
           inputTokens: finalMsg.usage.input_tokens,
-          cacheReadTokens: (finalMsg.usage as Record<string, number>).cache_read_input_tokens ?? 0,
+          cacheReadTokens: (finalMsg.usage as unknown as Record<string, number>).cache_read_input_tokens ?? 0,
           outputTokens: finalMsg.usage.output_tokens,
         },
         'claude.usage'
