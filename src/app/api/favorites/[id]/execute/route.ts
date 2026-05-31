@@ -11,6 +11,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const fav = await db.favorite.findUnique({ where: { id } });
   if (!fav) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (fav.userId !== session.user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // All roles can execute favorites
   const result = await agentRunQuery(

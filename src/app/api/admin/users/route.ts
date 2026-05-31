@@ -18,12 +18,20 @@ export async function POST(req: NextRequest) {
   if (!email || !name || !password || !role) {
     return NextResponse.json({ error: 'email, name, password, role required' }, { status: 400 });
   }
+  // Role validation
+  const validRoles = ['ADMIN', 'ANALYST', 'VIEWER'];
+  if (!validRoles.includes(role)) {
+    return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+  }
 
   const passwordHash = await bcrypt.hash(password as string, 12);
-  const user = await db.user.create({
-    data: { email, name, passwordHash, role },
-    select: { id: true, email: true, name: true, role: true, active: true, createdAt: true },
-  });
-
-  return NextResponse.json(user, { status: 201 });
+  try {
+    const user = await db.user.create({
+      data: { email, name, passwordHash, role },
+      select: { id: true, email: true, name: true, role: true, active: true, createdAt: true },
+    });
+    return NextResponse.json(user, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
+  }
 }

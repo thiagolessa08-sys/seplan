@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = (await req.json()) as FeedbackPayload;
-  if (!body.rating || !body.naturalLanguage || !body.sql) {
+  if (body.rating == null || !body.naturalLanguage || !body.sql) {
     return NextResponse.json({ error: 'rating, naturalLanguage and sql required' }, { status: 400 });
   }
 
