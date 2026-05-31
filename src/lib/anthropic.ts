@@ -1,6 +1,6 @@
 // src/lib/anthropic.ts
 import Anthropic from '@anthropic-ai/sdk';
-import type { MessageParam, Tool, ContentBlock } from '@anthropic-ai/sdk/resources/messages';
+import type { MessageParam, Tool, ContentBlock, TextBlockParam } from '@anthropic-ai/sdk/resources/messages';
 import { agentRunQuery } from '@/lib/agent';
 import { logger } from '@/lib/logger';
 import type { QueryResult, ChatMessage } from '@/types/domain';
@@ -39,7 +39,7 @@ export const TOOLS: Tool[] = [
 ];
 
 export interface StreamChatOptions {
-  systemBlocks: Array<{ type: 'text'; text: string; cache_control: { type: 'ephemeral' } }>;
+  systemBlocks: TextBlockParam[];
   history: Pick<ChatMessage, 'role' | 'content'>[];
   question: string;
   onText: (text: string) => void;
@@ -61,13 +61,13 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
   ];
 
   // Tool-use loop (Claude may call tools multiple times)
+  try {
   for (let round = 0; round < 5; round++) {
-    const textParts: string[] = [];
 
     const stream = client.messages.stream({
       model,
       max_tokens: 4096,
-      system: options.systemBlocks as unknown as MessageParam['content'],
+      system: options.systemBlocks,
       messages,
       tools: TOOLS,
     });
@@ -75,7 +75,6 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
     for await (const event of stream) {
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
         options.onText(event.delta.text);
-        textParts.push(event.delta.text);
       }
     }
 
@@ -115,7 +114,11 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
           options.onResult(result);
           resultText = JSON.stringify(result);
         } else if (block.name === 'sample_table') {
-          const sql = `SELECT TOP 5 * FROM ${input.table as string}`;
+          const tableName = input.table as string;
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
+            throw new Error(`Nome de tabela inválido: ${tableName}`);
+          }
+          const sql = `SELECT TOP 5 * FROM ${tableName}`;
           const result = await agentRunQuery(sql, 5);
           resultText = JSON.stringify(result);
         } else {
@@ -139,7 +142,9 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
 
     messages.push({ role: 'user', content: toolResults });
   }
-
   // Safety: 5 rounds exceeded
   options.onError(new Error('Número máximo de rounds de tool use excedido'));
+  } catch (err) {
+    options.onError(err instanceof Error ? err : new Error(String(err)));
+  }
 }
