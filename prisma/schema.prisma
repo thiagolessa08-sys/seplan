@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(VIEWER)
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  favorites    Favorite[]
+  feedbacks    Feedback[]
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+model Favorite {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  naturalLanguage String
+  sql             String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Feedback {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating          Rating
+  comment         String?
+  naturalLanguage String
+  sql             String
+  rowCount        Int?
+  createdAt       DateTime @default(now())
+
+  @@index([rating, createdAt])
+}
+
+enum Rating {
+  POSITIVE
+  NEGATIVE
+}
+
+model Glossary {
+  id        Int      @id @default(1)
+  content   String   @default("")
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+model SchemaTablePref {
+  schemaName        String
+  tableName         String
+  includedInContext Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+
+  @@id([schemaName, tableName])
+}
