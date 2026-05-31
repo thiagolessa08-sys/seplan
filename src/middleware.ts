@@ -8,7 +8,7 @@ export default auth((req: NextRequest & { auth: { user?: { role?: string } } | n
   const isLoggedIn = !!req.auth?.user;
 
   // Public routes
-  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
+  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth') || pathname === '/api/health') {
     if (isLoggedIn && pathname === '/login') {
       return NextResponse.redirect(new URL('/chat', req.url));
     }

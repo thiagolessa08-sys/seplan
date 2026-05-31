@@ -8,8 +8,10 @@ function getBase(): string {
 }
 
 function getHeaders(): Record<string, string> {
+  const apiKey = process.env.AGENT_API_KEY;
+  if (!apiKey) throw new Error('AGENT_API_KEY env var not set');
   return {
-    'X-API-Key': process.env.AGENT_API_KEY ?? '',
+    'X-API-Key': apiKey,
     'Content-Type': 'application/json',
   };
 }
