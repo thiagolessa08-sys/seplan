@@ -19,10 +19,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !password) return null;
 
         const user = await db.user.findUnique({ where: { email } });
-        if (!user || !user.active) return null;
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return null;
+        // Always run bcrypt to prevent timing attacks
+        const dummyHash = '$2a$12$dummyhashfordummydataXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+        const valid = await bcrypt.compare(password, user?.passwordHash ?? dummyHash);
+
+        if (!user || !user.active || !valid) return null;
 
         return { id: user.id, email: user.email, name: user.name, role: user.role as Role };
       },
@@ -31,7 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role: Role }).role;
+        token.role = user.role;
         token.id = user.id!;
       }
       return token;
