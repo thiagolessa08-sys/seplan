@@ -44,15 +44,16 @@ export async function refreshSchema(): Promise<TableSchema[]> {
   );
 
   const catalogSet = new Set<string>(CATALOG_TABLE_NAMES);
-  const filtered = allTables.filter((t) => catalogSet.has(t.name));
+  const filtered = allTables.filter((t) => catalogSet.has(t.name.toUpperCase()));
 
   const tables: TableSchema[] = await Promise.all(
     filtered.map(async (t) => {
-      const columns = await agentGetSchema(t.name);
-      const prefKey = `${DEFAULT_SCHEMA}.${t.name}`;
+      const normalizedName = t.name.toUpperCase();
+      const columns = await agentGetSchema(normalizedName);
+      const prefKey = `${DEFAULT_SCHEMA}.${normalizedName}`;
       const includedInContext = prefMap.get(prefKey) ?? true;
       return {
-        name: t.name,
+        name: normalizedName,
         type: t.type as 'BASE' | 'VIEW',
         columns,
         includedInContext,
