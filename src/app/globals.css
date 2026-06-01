@@ -2,6 +2,44 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ── Governo do Maranhão design tokens ─────────────────── */
+:root {
+  --ma-red:    #C1272D;
+  --ma-blue:   #1C75BC;
+  --ma-navy:   #1B3F73;
+  --ma-green:  #1FA24A;
+  --ma-green2: #56BB46;
+  --ma-yellow: #F9B814;
+  --ma-orange: #F47920;
+
+  --side-1:    #16294A;
+  --side-2:    #0E1B33;
+  --side-line: rgba(255,255,255,.08);
+  --side-text: #E8EEF7;
+  --side-muted:#93A4C0;
+
+  --app-bg:      #F4F6FA;
+  --app-surface: #FFFFFF;
+  --app-ink:     #16213A;
+  --app-ink-soft:#5A6985;
+  --app-line:    #E4E9F2;
+  --app-line-soft:#EDF1F7;
+
+  --rainbow: linear-gradient(90deg,#C1272D 0%,#1B3F73 22%,#1C75BC 40%,#1FA24A 60%,#56BB46 72%,#F9B814 86%,#F47920 100%);
+}
+
+@keyframes ma-blink {
+  0%,80%,100% { opacity:.3; transform:translateY(0); }
+  40%         { opacity:1;  transform:translateY(-3px); }
+}
+
+@keyframes ma-rise {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.ma-rise { animation: ma-rise .35s cubic-bezier(.2,.7,.3,1) both; }
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

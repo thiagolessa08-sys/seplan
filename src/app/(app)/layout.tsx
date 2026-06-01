@@ -1,8 +1,6 @@
-// src/app/(app)/layout.tsx
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
 import type { Role } from '@/types/domain';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -12,11 +10,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = session.user.role as Role;
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar role={role} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Topbar userName={session.user.name ?? ''} role={role} />
-        <main className="flex-1 overflow-auto">{children}</main>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--app-bg)' }}>
+      <Sidebar role={role} userName={session.user.name ?? ''} />
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {children}
       </div>
     </div>
   );
