@@ -114,11 +114,11 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
           options.onResult(result);
           resultText = JSON.stringify(result);
         } else if (block.name === 'sample_table') {
-          const tableName = (input.table as string).replace(/^DBO\./i, '');
+          const tableName = input.table as string;
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
             throw new Error(`Nome de tabela inválido: ${tableName}`);
           }
-          const sql = `SELECT TOP 5 * FROM DBO.${tableName}`;
+          const sql = `SELECT TOP 5 * FROM ${tableName}`;
           const result = await agentRunQuery(sql, 5);
           resultText = JSON.stringify(result);
         } else {
