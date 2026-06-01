@@ -62,7 +62,7 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
 
   // Tool-use loop (Claude may call tools multiple times)
   try {
-  for (let round = 0; round < 5; round++) {
+  for (let round = 0; round < 10; round++) {
 
     const stream = client.messages.stream({
       model,
@@ -143,7 +143,7 @@ export async function streamChat(options: StreamChatOptions): Promise<void> {
     messages.push({ role: 'user', content: toolResults });
   }
   // Safety: 5 rounds exceeded
-  options.onError(new Error('Número máximo de rounds de tool use excedido'));
+  options.onError(new Error('Não consegui completar a consulta após várias tentativas. O banco de dados pode estar indisponível ou a pergunta é muito complexa. Tente reformular.'));
   } catch (err) {
     options.onError(err instanceof Error ? err : new Error(String(err)));
   }
