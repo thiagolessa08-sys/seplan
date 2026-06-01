@@ -5,10 +5,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-// Prisma 7: pass datasourceUrl explicitly
-const db = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+// Prisma 7: DATABASE_URL is read from prisma.config.ts / process.env automatically
+const db = new PrismaClient();
 
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL;
