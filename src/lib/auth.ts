@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import type { Role } from '@/types/domain';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   session: { strategy: 'jwt' },
   providers: [
     Credentials({
