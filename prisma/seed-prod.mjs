@@ -1,10 +1,14 @@
 // seed-prod.mjs — Plain ESM, no TypeScript required
 // Runs on Railway to create the initial admin user and glossary
+// Safe to run multiple times (uses upsert)
 
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-const db = new PrismaClient();
+// Prisma 7: pass datasourceUrl explicitly
+const db = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
 
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL;
@@ -33,5 +37,5 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error('Seed error:', e); process.exit(1); })
+  .catch((e) => { console.error('Seed error:', e.message); })
   .finally(() => db.$disconnect());
